@@ -1,0 +1,18 @@
+{
+  "name": "Pénzügyi Tervező és Kiadáskövető",
+  "short_name": "Pénzügyi",
+  "description": "Mobilra optimalizált fehér címkés pénzügyi tervező és kiadáskövető heti gördülő kerettel.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#090d16",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

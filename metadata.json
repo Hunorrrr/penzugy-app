@@ -1,0 +1,6 @@
+{
+  "name": "Pénzügyi Tervező és Kiadáskövető",
+  "description": "Mobilra optimalizált pénzügyi tervező és kiadáskövető heti gördülő kerettel, fix kiadásokkal és dinamikus cél elosztóval.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

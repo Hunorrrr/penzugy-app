@@ -1,0 +1,1626 @@
+<!doctype html>
+<html lang="hu" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Pénzügyi Tervező és Kiadáskövető</title>
+    <meta name="description" content="Mobilra optimalizált pénzügyi tervező és kiadáskövető heti gördülő kerettel, fix kiadásokkal és dinamikus megtakarítási cél elosztóval." />
+    <meta property="og:title" content="Pénzügyi Tervező és Kiadáskövető" />
+    <meta property="og:description" content="Mobilra optimalizált pénzügyi tervező és kiadáskövető heti gördülő kerettel." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- PWA & Mobile Web App Meta Tags -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="/icon.svg" />
+    <meta name="theme-color" content="#090d16" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Pénzügyi Tervező" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              darkBg: '#090d16',
+              darkSurface: '#0f172a',
+              darkCard: '#1e293b',
+              darkBorder: '#334155',
+              brandEmerald: '#10b981',
+              brandCoral: '#f43f5e',
+              brandBlue: '#38bdf8',
+              brandPurple: '#818cf8',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #090d16;
+        color: #f1f5f9;
+        -webkit-tap-highlight-color: transparent;
+      }
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0f172a;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 9999px;
+      }
+      input[type=number]::-webkit-inner-spin-button,
+      input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-[#090d16] text-slate-100 flex flex-col pb-24 antialiased selection:bg-emerald-500 selection:text-white">
+    <!-- Header -->
+    <header class="sticky top-0 z-40 bg-[#0f172a]/90 backdrop-blur-md border-b border-slate-800/80 px-4 py-3 shadow-lg">
+      <div class="max-w-3xl mx-auto flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-slate-950 font-black text-xl">
+            $
+          </div>
+          <div>
+            <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-1.5 leading-tight">
+              Pénzügyi Tervező
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-semibold border border-emerald-500/30">PRO</span>
+            </h1>
+            <p class="text-xs text-slate-400 leading-none">Heti költőpénz & Megtakarítási célok</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="app.openSettingsModal()" id="openSettingsBtn" title="Beállítások & Nullázás" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700/80 transition text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span>Beállítások</span>
+          </button>
+          <button id="exportImportBtn" onclick="app.openBackupModal()" title="Adatok mentése / betöltése" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition text-xs flex items-center gap-1">
+            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+            <span class="hidden sm:inline">Adatkezelés</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-3xl mx-auto w-full px-3.5 sm:px-4 py-4 space-y-5">
+
+      <!-- QUICK BUTTONS: 1-click inputs (Section 5) -->
+      <section class="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800/70 border border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-xl">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="flex h-2.5 w-2.5 relative">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            </span>
+            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">1-Kattintásos Gyorsgombok</h2>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="app.openManageQuickButtonsModal()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/80 transition text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+              <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              <span>Gombok szerkesztése</span>
+            </button>
+          </div>
+        </div>
+        <div id="quickButtonsContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <!-- Dynamically rendered by JS from state.quickButtons -->
+        </div>
+      </section>
+
+      <!-- NAVIGATION TABS -->
+      <div class="grid grid-cols-4 bg-slate-900/90 p-1 rounded-2xl border border-slate-800 shadow-inner gap-1">
+        <button onclick="app.switchTab('weekly')" id="tab-weekly" class="py-2.5 px-2 rounded-xl font-bold text-xs flex flex-col sm:flex-row items-center justify-center gap-1 transition duration-150 bg-emerald-500 text-slate-950 shadow-md">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span class="truncate">Heti Keret</span>
+        </button>
+        <button onclick="app.switchTab('goals')" id="tab-goals" class="py-2.5 px-2 rounded-xl font-bold text-xs flex flex-col sm:flex-row items-center justify-center gap-1 transition duration-150 text-slate-400 hover:text-slate-200">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+          <span class="truncate">Célok</span>
+        </button>
+        <button onclick="app.switchTab('fixed')" id="tab-fixed" class="py-2.5 px-2 rounded-xl font-bold text-xs flex flex-col sm:flex-row items-center justify-center gap-1 transition duration-150 text-slate-400 hover:text-slate-200">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+          <span class="truncate">Fix Költség</span>
+        </button>
+        <button onclick="app.switchTab('analytics')" id="tab-analytics" class="py-2.5 px-2 rounded-xl font-bold text-xs flex flex-col sm:flex-row items-center justify-center gap-1 transition duration-150 text-slate-400 hover:text-slate-200">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          <span class="truncate">Diagramok</span>
+        </button>
+      </div>
+
+      <!-- TAB 1: WEEKLY SPENDING & ROLLOVER (Section 4) -->
+      <section id="panel-weekly" class="space-y-4">
+        <!-- PENDING SURPLUS BANNER (Maradvány-kezelés és döntési kártya) -->
+        <div id="pendingSurplusContainer" class="space-y-2.5">
+          <!-- Dynamically inserted if a closed week has pending surplus -->
+        </div>
+
+        <!-- Week Selector & Status Card -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 pb-3 border-b border-slate-800 gap-2.5">
+            <div>
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">15-ei Fizetési Ciklus</span>
+                <span id="cycleModeBadge" class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-cyan-950/60 text-cyan-300 border border-cyan-800/40">
+                  📅 Automatikus
+                </span>
+              </div>
+              <h3 id="currentWeekTitle" class="text-xl font-black text-white flex items-center gap-2">
+                1. Hét Kerete
+              </h3>
+              <p id="currentWeekDateRange" class="text-xs text-slate-400 mt-0.5">
+                Ciklus: 15. – 21.
+              </p>
+            </div>
+            
+            <!-- Week selector buttons (1..4) with date intervals -->
+            <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 overflow-x-auto" id="weekPills">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Toolbar with direct edit buttons -->
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="app.openEditWeekValuesModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+                <span>✏️ Értékek korrigálása</span>
+              </button>
+              <button type="button" onclick="app.openResetCycleModal()" class="px-3 py-1.5 rounded-xl bg-amber-950/40 hover:bg-amber-900/60 text-amber-300 border border-amber-800/50 text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+                <span>⚡ Ciklus újraindítása / Hetek nullázása</span>
+              </button>
+            </div>
+            <span class="text-[11px] text-slate-400">Kattints a ✏️ ikonra a közvetlen felülbíráláshoz</span>
+          </div>
+
+          <!-- Highlight Balance Cards with Direct Overrides -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4">
+            <!-- 1. Heti induló keret -->
+            <div onclick="app.openEditWeekValuesModal('base')" class="bg-slate-800/50 hover:bg-slate-800/80 p-3 rounded-xl border border-slate-700/50 hover:border-cyan-500/50 transition cursor-pointer relative group" title="Kattints az induló keret szerkesztéséhez">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="text-[11px] font-medium text-slate-400">Heti induló keret</span>
+                <button type="button" onclick="event.stopPropagation(); app.openEditWeekValuesModal('base')" class="text-[10px] text-cyan-400 hover:text-cyan-300 font-bold flex items-center gap-1" title="Induló keret szerkesztése">
+                  <span id="statBaseBudgetBadge" class="hidden px-1 rounded bg-cyan-950/80 text-cyan-300 border border-cyan-800/60 font-semibold">Egyedi</span>
+                  <span>✏️</span>
+                </button>
+              </div>
+              <span id="statBaseBudget" class="text-base sm:text-lg font-bold text-slate-200">15 000 Ft</span>
+            </div>
+
+            <!-- 2. Áthozat előző hétről -->
+            <div onclick="app.openEditWeekValuesModal('rollover')" class="bg-slate-800/50 hover:bg-slate-800/80 p-3 rounded-xl border border-slate-700/50 hover:border-cyan-500/50 transition cursor-pointer relative group" title="Kattints az áthozat szerkesztéséhez (pl. 0 Ft, hiány vagy többlet)">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="text-[11px] font-medium text-slate-400">Áthozat előző hétről</span>
+                <button type="button" onclick="event.stopPropagation(); app.openEditWeekValuesModal('rollover')" class="text-[10px] text-cyan-400 hover:text-cyan-300 font-bold flex items-center gap-1" title="Áthozat közvetlen szerkesztése (pl. 0 Ft, hiány vagy többlet)">
+                  <span id="statRolloverBadge" class="hidden px-1 rounded bg-cyan-950/80 text-cyan-300 border border-cyan-800/60 font-semibold">Kézi</span>
+                  <span>✏️</span>
+                </button>
+              </div>
+              <span id="statRollover" class="text-base sm:text-lg font-bold text-slate-300">0 Ft</span>
+            </div>
+
+            <!-- 3. Heti költés -->
+            <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+              <span class="text-[11px] font-medium text-slate-400 block mb-0.5">Heti költés</span>
+              <span id="statSpent" class="text-base sm:text-lg font-bold text-rose-400">0 Ft</span>
+            </div>
+
+            <!-- 4. Hátralévő keret -->
+            <div id="statRemainingCard" onclick="app.openEditWeekValuesModal('remaining')" class="bg-emerald-950/30 hover:bg-emerald-950/50 p-3 rounded-xl border border-emerald-800/40 hover:border-emerald-500/60 transition cursor-pointer relative group" title="Kattints a hátralévő keret közvetlen beállításához (pl. 8 500 Ft)">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="text-[11px] font-medium text-slate-400">Hátralévő keret</span>
+                <button type="button" onclick="event.stopPropagation(); app.openEditWeekValuesModal('remaining')" class="text-[10px] text-emerald-300 hover:text-white font-bold flex items-center gap-1" title="Hátralévő keret közvetlen beállítása (pl. pontosan 8 500 Ft)">
+                  <span id="statRemainingBadge" class="hidden px-1 rounded bg-emerald-900/80 text-emerald-300 border border-emerald-700 font-semibold">Kézi</span>
+                  <span>✏️</span>
+                </button>
+              </div>
+              <span id="statRemaining" class="text-base sm:text-lg font-extrabold text-emerald-400">15 000 Ft</span>
+            </div>
+          </div>
+
+          <!-- Overspending Warning Banner if deficit -->
+          <div id="rolloverAlert" class="hidden mb-4 p-3 rounded-xl bg-rose-950/40 border border-rose-500/50 text-rose-200 text-xs sm:text-sm flex items-start gap-2.5 animate-pulse">
+            <svg class="w-5 h-5 text-rose-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <div>
+              <p class="font-bold text-rose-300" id="rolloverAlertTitle">Túlköltekezés az adott héten!</p>
+              <p class="text-xs text-rose-200/90" id="rolloverAlertDesc">A hiány automatikusan levonódik a következő hét költőpénzéből a gördülő elszámolás szabálya szerint.</p>
+            </div>
+          </div>
+
+          <!-- End-of-week Surplus Action Card (Döntési kártya) -->
+          <div id="surplusActionCard" class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="w-full sm:w-auto text-left">
+              <span class="text-xs font-bold text-slate-300 block">Hét lezárása & Maradvány elszámolás</span>
+              <span id="surplusText" class="text-xs text-slate-400">A maradvány NEM vész el: átviheted a következő hétre vagy célba mentheted.</span>
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+              <button onclick="app.promptCloseWeekRoll()" class="flex-1 sm:flex-initial px-3 py-2 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 border border-blue-500/40 text-xs font-bold transition flex items-center justify-center gap-1 active:scale-95">
+                ⏩ Következő hétre
+              </button>
+              <button onclick="app.openSurplusToSavingsModal()" class="flex-1 sm:flex-initial px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 text-xs font-bold transition flex items-center justify-center gap-1 shadow-md shadow-emerald-500/20 active:scale-95">
+                💰 Célhoz adás!
+              </button>
+            </div>
+          </div>
+
+          <!-- KÉZI BEÁLLÍTÁSOK & KEZDŐ EGYENLEG DOBOZ (Manual Override) -->
+          <div class="mt-4 pt-3 border-t border-slate-800">
+            <div class="flex items-center justify-between cursor-pointer" onclick="app.toggleManualSettingsBox()">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                  <span class="text-sm">⚙️</span> Kézi beállítások & Induló egyenleg
+                </span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-950/70 text-cyan-300 border border-cyan-800/40 font-bold">Manual Override</span>
+              </div>
+              <button type="button" id="manualSettingsToggleArrow" class="text-xs text-slate-400 hover:text-white transition">
+                ▼
+              </button>
+            </div>
+
+            <div id="manualSettingsBox" class="mt-3 p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-3.5 hidden">
+              <!-- Explanation info tip -->
+              <div class="p-2.5 rounded-lg bg-blue-950/30 border border-blue-800/40 text-[11px] text-blue-200/90 flex items-start gap-2">
+                <span class="text-base shrink-0">💡</span>
+                <span>
+                  <strong>Kezdő keret vagy tört hét:</strong> Ha a fizetés még nem érkezett meg, vagy most kezded a követést egyéni összeggel (pl. <strong>10 000 Ft</strong> van a hétre), itt közvetlenül megadhatod az aktuális hét induló keretét!
+                </span>
+              </div>
+
+              <!-- Week mode selection -->
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <label class="block text-[11px] font-semibold text-slate-300">Aktív hét kijelölése (Kézi vagy Automatikus):</label>
+                  <span id="manualModeStatusText" class="text-[10px] text-slate-400">Automatikus mód</span>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5">
+                  <button type="button" onclick="app.setWeekMode('auto')" id="modeBtn-auto" class="py-1.5 px-2 rounded-lg text-xs font-bold transition bg-emerald-500 text-slate-950 flex items-center justify-center gap-1 shadow">
+                    <span>🔄 Automatikus</span>
+                  </button>
+                  <button type="button" onclick="app.setWeekMode('manual', 1)" id="modeBtn-1" class="py-1.5 px-2 rounded-lg text-xs font-bold transition bg-slate-900 text-slate-400 hover:text-white border border-slate-800">
+                    1. hét (15–21.)
+                  </button>
+                  <button type="button" onclick="app.setWeekMode('manual', 2)" id="modeBtn-2" class="py-1.5 px-2 rounded-lg text-xs font-bold transition bg-slate-900 text-slate-400 hover:text-white border border-slate-800">
+                    2. hét (22–28.)
+                  </button>
+                  <button type="button" onclick="app.setWeekMode('manual', 3)" id="modeBtn-3" class="py-1.5 px-2 rounded-lg text-xs font-bold transition bg-slate-900 text-slate-400 hover:text-white border border-slate-800">
+                    3. hét (29–4.)
+                  </button>
+                  <button type="button" onclick="app.setWeekMode('manual', 4)" id="modeBtn-4" class="py-1.5 px-2 rounded-lg text-xs font-bold transition bg-slate-900 text-slate-400 hover:text-white border border-slate-800">
+                    4. hét (5–14.)
+                  </button>
+                </div>
+              </div>
+
+              <!-- Starting balance / custom base budget for the selected week -->
+              <div class="pt-2.5 border-t border-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <span class="text-xs font-bold text-white block" id="customWeekBudgetLabel">Jelenlegi hét induló kerete:</span>
+                  <span class="text-[10px] text-slate-400">Add meg közvetlenül a heti kezdőpénzt:</span>
+                </div>
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <!-- Quick chips -->
+                  <div class="flex items-center gap-1">
+                    <button type="button" onclick="app.setQuickCustomBudget(5000)" class="px-2 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10px] font-bold text-slate-300">5k</button>
+                    <button type="button" onclick="app.setQuickCustomBudget(7000)" class="px-2 py-1 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-700 text-[10px] font-extrabold text-cyan-300" title="Gyakori: 7 000 Ft">7k</button>
+                    <button type="button" onclick="app.setQuickCustomBudget(10000)" class="px-2 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10px] font-bold text-slate-300">10k</button>
+                    <button type="button" onclick="app.setQuickCustomBudget(15000)" class="px-2 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10px] font-bold text-slate-300">15k</button>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <div class="relative w-28 sm:w-32">
+                      <input type="number" id="customWeekBudgetInput" placeholder="pl. 7000" min="0" step="500" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white font-bold focus:outline-none focus:border-emerald-500">
+                      <span class="absolute right-2.5 top-1.5 text-[10px] text-slate-500 font-semibold">Ft</span>
+                    </div>
+                    <button type="button" onclick="app.saveCustomWeekBudget()" class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-sm transition">
+                      Mentés
+                    </button>
+                    <button type="button" onclick="app.resetCustomWeekBudget()" title="Visszaállítás az alap havi keretre" class="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white text-xs border border-slate-700 transition">
+                      ↺
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Expense Form -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-sm font-bold text-white flex items-center gap-2">
+              <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Kiadás rögzítése
+            </h4>
+            <div class="flex items-center gap-2">
+              <input type="file" id="receiptFileInput" accept="image/*" capture="environment" class="hidden" onchange="app.handleReceiptFileSelected(event)">
+              <button type="button" onclick="app.triggerScanReceipt()" class="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-600/30 via-indigo-600/30 to-blue-600/30 hover:from-purple-600/50 hover:to-blue-600/50 text-purple-200 hover:text-white border border-purple-500/40 text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+                <svg class="w-3.5 h-3.5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <span>📸 Blokk fotózása (AI)</span>
+              </button>
+            </div>
+          </div>
+          <form id="addExpenseForm" onsubmit="app.handleAddExpense(event)" class="space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div class="sm:col-span-1">
+                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Összeg (Ft)</label>
+                <div class="relative">
+                  <input type="number" id="expenseAmount" required placeholder="pl. 3800" min="1" step="1" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-rose-300 font-bold placeholder-slate-600 focus:outline-none focus:border-rose-500 text-sm">
+                  <span class="absolute right-3 top-2.5 text-xs text-slate-500 font-semibold">Ft</span>
+                </div>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Megjegyzés / Tétel</label>
+                <input type="text" id="expenseNote" required placeholder="pl. Bevásárlás, Kávé, Mozi..." class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-rose-500 text-sm">
+              </div>
+            </div>
+
+            <!-- Kategória választó: Szórakozás vs Hasznos -->
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1.5">Kategória kiválasztása:</label>
+              <div class="grid grid-cols-2 gap-2">
+                <label class="cursor-pointer">
+                  <input type="radio" name="expenseCategoryRadio" id="catRadioSzorakozas" value="szórakozás" class="peer sr-only">
+                  <div class="p-2.5 rounded-xl border border-slate-700/80 bg-slate-950 text-slate-400 peer-checked:border-purple-500 peer-checked:bg-purple-950/40 peer-checked:text-purple-300 font-bold text-xs flex items-center justify-center gap-2 transition hover:bg-slate-900 shadow-sm">
+                    <span class="text-base">🎭</span>
+                    <div class="text-left leading-tight">
+                      <span class="block">Szórakozás</span>
+                      <span class="text-[10px] text-slate-500 font-normal">étterem, buli, mozi, hobbi</span>
+                    </div>
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="expenseCategoryRadio" id="catRadioHasznos" value="hasznos" class="peer sr-only" checked>
+                  <div class="p-2.5 rounded-xl border border-slate-700/80 bg-slate-950 text-slate-400 peer-checked:border-emerald-500 peer-checked:bg-emerald-950/40 peer-checked:text-emerald-300 font-bold text-xs flex items-center justify-center gap-2 transition hover:bg-slate-900 shadow-sm">
+                    <span class="text-base">🛒</span>
+                    <div class="text-left leading-tight">
+                      <span class="block">Hasznos / Szükséges</span>
+                      <span class="text-[10px] text-slate-500 font-normal">élelmiszer, drogéria, tankolás</span>
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <button type="submit" class="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-sm transition shadow-lg shadow-rose-900/30 flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              Kiadás levonása a heti keretből
+            </button>
+          </form>
+        </div>
+
+        <!-- Weekly Expenses List -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-sm font-bold text-white flex items-center gap-2">
+              <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+              Heti költések listája
+            </h4>
+            <span id="expenseCountBadge" class="text-xs bg-slate-800 px-2 py-0.5 rounded-full text-slate-400 font-semibold">0 tétel</span>
+          </div>
+          <div id="weeklyExpenseList" class="space-y-2 max-h-72 overflow-y-auto pr-1">
+            <!-- Expenses populated by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: SAVINGS GOALS & AUTO SPLITTER (Section 2 & 3) -->
+      <section id="panel-goals" class="space-y-4 hidden">
+        <!-- Variable Income Auto Distribution Card (Section 3) -->
+        <div class="bg-gradient-to-r from-emerald-950/40 via-slate-900 to-slate-900 border border-emerald-800/40 rounded-2xl p-4 sm:p-5 shadow-xl">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                ⚡
+              </div>
+              <div>
+                <h3 class="text-sm sm:text-base font-bold text-white">Változó Bevétel Automatikus Szétosztása</h3>
+                <p class="text-xs text-slate-400">Pénz azonnali szétosztása a megtakarítási célok között a beállított % arányban</p>
+              </div>
+            </div>
+          </div>
+
+          <form onsubmit="app.handleDistributeIncome(event)" class="mt-3 space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Bejövő összeg (Ft)</label>
+                <div class="relative">
+                  <input type="number" id="distributeAmount" required placeholder="pl. 25000" min="1" step="1" class="w-full bg-slate-950 border border-emerald-700/60 rounded-xl px-3 py-2.5 text-emerald-400 font-bold placeholder-slate-600 focus:outline-none focus:border-emerald-500 text-sm">
+                  <span class="absolute right-3 top-2.5 text-xs text-slate-500 font-semibold">Ft</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-400 mb-1">Bevétel forrása / Megjegyzés</label>
+                <input type="text" id="distributeNote" placeholder="pl. Másodállás, bónusz, extra megbízás..." class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500 text-sm">
+              </div>
+            </div>
+
+            <!-- Distribution Preview Banner -->
+            <div id="distributionPreview" class="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800 text-xs text-slate-300">
+              <!-- Dynamically shows preview per goal -->
+            </div>
+
+            <button type="submit" class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              Szétosztás a Célok Között
+            </button>
+          </form>
+        </div>
+
+        <!-- Goals Header & Percentage Validator (Section 2) -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+            <div>
+              <h3 class="text-base font-bold text-white flex items-center gap-2">
+                🎯 Megtakarítási Célok
+              </h3>
+              <p class="text-xs text-slate-400">Kövesd a haladást és állítsd be a szétosztási arányokat</p>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <!-- 100% check badge -->
+              <div id="percentageBadge" class="px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                <span>Összes arány: 100% ✓</span>
+              </div>
+              <button onclick="app.openAddGoalModal()" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition flex items-center gap-1 shadow">
+                + Új Cél
+              </button>
+            </div>
+          </div>
+
+          <!-- Goals List Cards -->
+          <div id="goalsContainer" class="mt-4 space-y-3">
+            <!-- Dynamic Goals rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Transaction History -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-sm font-bold text-white flex items-center gap-2">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Bevétel & Megtakarítás Történet
+            </h4>
+            <div class="flex items-center gap-2">
+              <button onclick="app.openClearHistoryConfirm()" class="px-2.5 py-1 rounded-lg bg-rose-950/30 hover:bg-rose-950/60 text-rose-300 hover:text-rose-200 border border-rose-800/40 text-[11px] font-semibold transition flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                <span>Összes törlése</span>
+              </button>
+            </div>
+          </div>
+          <div id="savingsHistoryList" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: FIXED EXPENSES & BASE INCOME (Section 1) -->
+      <section id="panel-fixed" class="space-y-4 hidden">
+        <!-- Overview Calculation Banner -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <label class="text-[11px] font-semibold text-slate-400 block mb-1">Garantált Havi Bevétel</label>
+              <div class="flex items-center gap-1">
+                <input type="number" id="guaranteedIncomeInput" onchange="app.updateGuaranteedIncome(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-emerald-400 font-extrabold text-base focus:outline-none focus:border-emerald-500" placeholder="0">
+                <span class="text-xs text-slate-500 font-bold">Ft</span>
+              </div>
+              <span class="text-[10px] text-slate-500 mt-1 block">pl. Munkabér, ösztöndíj vagy havi fix jövedelem</span>
+            </div>
+
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <span class="text-[11px] font-semibold text-slate-400 block mb-1">Összes Fix Kiadás</span>
+              <div class="text-rose-400 font-extrabold text-lg py-1" id="totalFixedExpensesText">
+                0 Ft
+              </div>
+              <span class="text-[10px] text-slate-500 block">Kiadási tételek összege</span>
+            </div>
+
+            <div class="bg-gradient-to-br from-emerald-950/30 to-slate-950 p-3 rounded-xl border border-emerald-800/40">
+              <span class="text-[11px] font-semibold text-emerald-400 block mb-1">Alap Szabad Keret</span>
+              <div class="text-emerald-300 font-black text-xl py-0.5" id="baseFreeBudgetText">
+                0 Ft
+              </div>
+              <div class="flex items-center justify-between text-[10px] text-slate-400 mt-0.5">
+                <span>Bevétel - Fix kiadások</span>
+                <span id="baseWeeklyCalc" class="text-emerald-400 font-semibold">≈ 0 Ft/hét</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Weekly Budget Setting Override -->
+          <div class="mt-4 pt-3 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div>
+              <span class="text-xs font-bold text-white block">Heti költőpénzhez rendelt havi keret:</span>
+              <span class="text-[11px] text-slate-400">Ezt osztja 4 heti részre a gördülő elszámoló (Alap: az Alap Szabad Keret).</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="number" id="monthlyWeeklyBudgetInput" onchange="app.updateMonthlyWeeklyBudget(this.value)" class="w-32 bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-sm font-bold text-white focus:outline-none focus:border-emerald-500" placeholder="0">
+              <span class="text-xs text-slate-400">Ft / hó</span>
+              <button onclick="app.syncBudgetWithFreeKeret()" title="Szinkronizálás a szabad kerettel" class="px-2 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] text-emerald-400 font-semibold border border-slate-700">
+                Szinkron
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fixed Expenses List & Add Form -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+          <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+            <div>
+              <h3 class="text-base font-bold text-white">Szerkeszthető Fix Kiadások</h3>
+              <p class="text-xs text-slate-400">Rendszeres havi kiadások (Lakbér, Számlák, Előfizetések, Bérlet...)</p>
+            </div>
+            <button onclick="app.toggleAddFixedForm()" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold text-xs transition flex items-center gap-1 shadow">
+              + Tétel hozzáadása
+            </button>
+          </div>
+
+          <!-- Add fixed expense form (collapsible) -->
+          <div id="addFixedFormContainer" class="hidden mb-4 p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+            <h5 class="text-xs font-bold text-slate-300 mb-2">Új fix kiadási tétel</h5>
+            <form onsubmit="app.handleAddFixedExpense(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <input type="text" id="newFixedName" required placeholder="Tétel neve (pl. Lakbér, Számlák, Bérlet)" class="sm:col-span-2 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+              <div class="relative">
+                <input type="number" id="newFixedAmount" required placeholder="Összeg (Ft)" min="1" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-rose-300 font-bold focus:outline-none focus:border-emerald-500">
+                <span class="absolute right-3 top-2 text-xs text-slate-500 font-semibold">Ft</span>
+              </div>
+              <div class="sm:col-span-3 flex justify-end gap-2 mt-1">
+                <button type="button" onclick="app.toggleAddFixedForm()" class="px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:text-white">Mégse</button>
+                <button type="submit" class="px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow">Mentés</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Fixed Expenses Table / List -->
+          <div id="fixedExpensesList" class="space-y-2">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: ANALYTICS & CHARTS (Category Breakdown & Monthly Extra Income Trend) -->
+      <section id="panel-analytics" class="space-y-4 hidden">
+        <!-- Section 1: Entertainment vs Useful Expenses Ratio -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+            <div>
+              <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <span>📊</span> Szórakozás vs. Hasznos Kiadások
+              </h3>
+              <p class="text-xs text-slate-400">Kövesd nyomon, mi ment létszükségletre és mi pusztán szórakozásra</p>
+            </div>
+
+            <!-- Timeframe Filter -->
+            <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800" id="analyticsTimeframePills">
+              <button onclick="app.setAnalyticsTimeframe('day')" id="tf-day" class="px-2.5 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">Nap</button>
+              <button onclick="app.setAnalyticsTimeframe('month')" id="tf-month" class="px-2.5 py-1 rounded-lg text-xs font-bold transition bg-emerald-500 text-slate-950 shadow-sm">Hónap</button>
+              <button onclick="app.setAnalyticsTimeframe('year')" id="tf-year" class="px-2.5 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">Év</button>
+              <button onclick="app.setAnalyticsTimeframe('all')" id="tf-all" class="px-2.5 py-1 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">Mind</button>
+            </div>
+          </div>
+
+          <!-- Cards Summary -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-4">
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <span class="text-[11px] font-semibold text-slate-400 block mb-0.5">Időszak összes kiadása</span>
+              <div id="analyticsTotalSpent" class="text-lg font-black text-white">0 Ft</div>
+              <span id="analyticsPeriodLabel" class="text-[10px] text-slate-500">Aktuális hónap</span>
+            </div>
+            <div class="bg-purple-950/20 p-3 rounded-xl border border-purple-800/40">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="text-[11px] font-semibold text-purple-300">🎭 Szórakozás</span>
+                <span id="analyticsFunPercent" class="text-xs font-extrabold text-purple-400">0%</span>
+              </div>
+              <div id="analyticsFunAmount" class="text-lg font-black text-purple-400">0 Ft</div>
+              <span class="text-[10px] text-slate-500">étterem, buli, mozi, élmények</span>
+            </div>
+            <div class="bg-emerald-950/20 p-3 rounded-xl border border-emerald-800/40">
+              <div class="flex items-center justify-between mb-0.5">
+                <span class="text-[11px] font-semibold text-emerald-300">🛒 Hasznos / Kötelező</span>
+                <span id="analyticsUsefulPercent" class="text-xs font-extrabold text-emerald-400">0%</span>
+              </div>
+              <div id="analyticsUsefulAmount" class="text-lg font-black text-emerald-400">0 Ft</div>
+              <span class="text-[10px] text-slate-500">élelmiszer, drogéria, kötelezők</span>
+            </div>
+          </div>
+
+          <!-- Visual Ratio Bar & Donut -->
+          <div class="mt-4 p-4 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col md:flex-row items-center gap-5 justify-between">
+            <!-- Donut SVG Chart -->
+            <div class="flex items-center gap-4">
+              <div class="relative w-28 h-28 shrink-0 flex items-center justify-center">
+                <svg viewBox="0 0 36 36" class="w-full h-full -rotate-90">
+                  <path class="text-slate-800" stroke-width="4.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  <path id="donutUsefulPath" class="text-emerald-500 transition-all duration-700 ease-out" stroke-dasharray="0, 100" stroke-width="4.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  <path id="donutFunPath" class="text-purple-500 transition-all duration-700 ease-out" stroke-dasharray="0, 100" stroke-width="4.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                  <span id="donutRatioCenter" class="text-xs font-black text-white">0%</span>
+                  <span class="text-[9px] text-slate-500 uppercase">Hasznos</span>
+                </div>
+              </div>
+
+              <div class="space-y-2 text-xs">
+                <div class="flex items-center gap-2">
+                  <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                  <span class="text-slate-300 font-semibold">Hasznos kiadások:</span>
+                  <span id="legendUsefulText" class="font-bold text-emerald-400">0%</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="w-3 h-3 rounded-full bg-purple-500"></span>
+                  <span class="text-slate-300 font-semibold">Szórakozás:</span>
+                  <span id="legendFunText" class="font-bold text-purple-400">0%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Insight Coach Card -->
+            <div id="analyticsInsightBox" class="w-full md:max-w-xs p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs space-y-1">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Pénzügyi visszajelzés</span>
+              <p id="analyticsInsightText" class="text-slate-300 font-medium">Nincs elegendő kiadási adat a választott időszakban.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Extra Monthly Income Graph (Fixen túli bevételek alakulása) -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+            <div>
+              <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <span>📈</span> Plusz Bevételek Havi Alakulása
+              </h3>
+              <p class="text-xs text-slate-400">Havonkénti fixen felüli bevételek (másodállás, bónusz, extra jövedelem) alakulása</p>
+            </div>
+            <div id="extraIncomeTrendBadge" class="px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 bg-emerald-950/60 text-emerald-400 border border-emerald-800/60">
+              <span>Növekvő tendencia ↗</span>
+            </div>
+          </div>
+
+          <!-- Trend Metrics -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mt-4">
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <span class="text-[11px] font-semibold text-slate-400 block mb-0.5">Összes plusz bevétel</span>
+              <div id="trendTotalExtra" class="text-base sm:text-lg font-black text-emerald-400">0 Ft</div>
+              <span class="text-[10px] text-slate-500">rögzített változó bevételek</span>
+            </div>
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <span class="text-[11px] font-semibold text-slate-400 block mb-0.5">Havi átlagos plusz</span>
+              <div id="trendMonthlyAverage" class="text-base sm:text-lg font-black text-cyan-400">0 Ft</div>
+              <span class="text-[10px] text-slate-500">átlagosan havonta</span>
+            </div>
+            <div class="col-span-2 sm:col-span-1 bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <span class="text-[11px] font-semibold text-slate-400 block mb-0.5">Legerősebb hónap</span>
+              <div id="trendBestMonth" class="text-base sm:text-lg font-black text-emerald-300">-</div>
+              <span class="text-[10px] text-slate-500" id="trendBestMonthAmount">0 Ft</span>
+            </div>
+          </div>
+
+          <!-- Monthly Bar Chart -->
+          <div class="mt-4 p-4 rounded-xl bg-slate-950 border border-slate-800">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold text-slate-300">Havi bevételek alakulása</span>
+              <span class="text-[11px] text-slate-500">Elmúlt 6 hónap</span>
+            </div>
+            <div id="monthlyBarChartContainer" class="flex items-end justify-between gap-2 h-44 pt-6 pb-2 px-1">
+              <!-- Dynamically populated bars -->
+            </div>
+          </div>
+
+          <!-- Recent Variable Incomes Breakdown List -->
+          <div class="mt-4">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Rögzített bevételek listája:</h4>
+            <div id="monthlyIncomeDetailsList" class="space-y-2 max-h-52 overflow-y-auto pr-1">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 opacity-0 pointer-events-none transform translate-y-3">
+      <div id="toastInner" class="px-4 py-2.5 rounded-2xl bg-slate-900/95 border border-slate-700 text-white text-xs sm:text-sm font-semibold shadow-2xl flex items-center gap-2 backdrop-blur-md">
+        <span id="toastIcon">✨</span>
+        <span id="toastMessage">Értesítés</span>
+      </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT SAVINGS GOAL -->
+    <div id="goalModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl relative">
+        <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-800">
+          <h3 id="goalModalTitle" class="text-base font-bold text-white">Új Megtakarítási Cél</h3>
+          <button onclick="app.closeGoalModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+        </div>
+        <form onsubmit="app.handleSaveGoal(event)" class="space-y-3.5">
+          <input type="hidden" id="goalModalId">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Cél neve</label>
+            <input type="text" id="goalModalName" required placeholder="pl. Biztonsági tartalék, Utazás, Új laptop..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 mb-1">Célösszeg (Ft)</label>
+              <input type="number" id="goalModalTarget" required min="1000" step="500" placeholder="350000" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-blue-300 font-bold focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 mb-1">Jelenlegi összeg (Ft)</label>
+              <input type="number" id="goalModalCurrent" required min="0" step="500" placeholder="0" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-emerald-400 font-bold focus:outline-none focus:border-blue-500">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Elosztási arány (% a 100%-ból)</label>
+            <div class="flex items-center gap-3">
+              <input type="range" id="goalModalPercentRange" min="0" max="100" step="5" oninput="document.getElementById('goalModalPercent').value = this.value" class="flex-1 accent-blue-500">
+              <div class="relative w-20">
+                <input type="number" id="goalModalPercent" required min="0" max="100" oninput="document.getElementById('goalModalPercentRange').value = this.value" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2 py-1.5 text-center text-sm font-bold text-white focus:outline-none focus:border-blue-500">
+                <span class="absolute right-2 top-1.5 text-xs text-slate-500 font-semibold">%</span>
+              </div>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-1">Az összes cél arányának 100%-ot kell kiadnia a szétosztáshoz.</p>
+          </div>
+          <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+            <button type="button" onclick="app.closeGoalModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">Mégse</button>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg">Cél mentése</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: SURPLUS TO SAVINGS (ROLLOVER TO GOAL) -->
+    <div id="surplusModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl relative">
+        <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+          <h3 class="text-base font-bold text-white flex items-center gap-1.5">
+            <span>💰</span> Heti Megtakarítás Jóváírása
+          </h3>
+          <button onclick="app.closeSurplusModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+        </div>
+        <p class="text-xs text-slate-300 mb-3">
+          Az aktuális hét maradványa: <span id="surplusAmountHighlight" class="font-bold text-emerald-400 text-sm">4 000 Ft</span>.
+          Válaszd ki, melyik megtakarítási célodba szeretnéd áthelyezni, vagy oszd szét az összes között!
+        </p>
+
+        <div class="space-y-2 mb-4" id="surplusGoalOptions">
+          <!-- Dynamic goal options button list -->
+        </div>
+
+        <div class="flex justify-end pt-2 border-t border-slate-800">
+          <button onclick="app.closeSurplusModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">Mégse</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: EXPORT / IMPORT BACKUP -->
+    <div id="backupModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl relative">
+        <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+          <h3 class="text-base font-bold text-white">Adatok Mentése / Visszaállítása</h3>
+          <button onclick="app.closeBackupModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+        </div>
+        <p class="text-xs text-slate-400 mb-3">Minden adatod a böngésződ memóriájában (localStorage) van elmentve. Innen exportálhatod vagy betölthetsz korábbi mentést.</p>
+
+        <div class="space-y-3">
+          <div>
+            <button onclick="app.exportData()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition border border-slate-700 flex items-center justify-center gap-2">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              Adatok letöltése fájlként (JSON)
+            </button>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Biztonsági mentés visszaállítása:</label>
+            <input type="file" id="importFileInput" accept=".json" onchange="app.importData(event)" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-slate-950 hover:file:bg-emerald-500 cursor-pointer">
+          </div>
+        </div>
+
+        <div class="flex justify-end pt-3 mt-3 border-t border-slate-800">
+          <button onclick="app.closeBackupModal()" class="px-4 py-1.5 rounded-xl text-xs text-slate-400 hover:text-white">Bezárás</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: MANAGE QUICK BUTTONS -->
+    <div id="quickButtonsModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-5 shadow-2xl relative max-h-[90vh] flex flex-col">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800 shrink-0">
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <span>⚡</span> Gyorsgombok Kezelése
+            </h3>
+            <p class="text-xs text-slate-400">Szerkeszd, töröld vagy hozz létre új 1-kattintásos gyorsgombokat</p>
+          </div>
+          <button onclick="app.closeManageQuickButtonsModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+        </div>
+
+        <!-- Add / Edit Form (collapsible or top section) -->
+        <div id="quickButtonFormCard" class="mt-3 p-3.5 rounded-xl bg-slate-950 border border-slate-800 shrink-0">
+          <div class="flex items-center justify-between mb-2">
+            <h4 id="quickButtonFormTitle" class="text-xs font-bold text-emerald-400 uppercase tracking-wider">+ Új gyorsgomb létrehozása</h4>
+            <button type="button" id="cancelEditQuickBtn" onclick="app.resetQuickButtonForm()" class="hidden text-[11px] text-slate-400 hover:text-white">Mégse</button>
+          </div>
+          <form onsubmit="app.handleSaveQuickButton(event)" class="space-y-2.5">
+            <input type="hidden" id="qbId">
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[10px] font-semibold text-slate-400 mb-1">Típus</label>
+                <select id="qbType" onchange="app.toggleQbCategoryVisibility()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                  <option value="expense">💸 Kiadás (Heti keretből)</option>
+                  <option value="income">💰 Bevétel (Célokba osztás)</option>
+                </select>
+              </div>
+              <div id="qbCategoryWrapper">
+                <label class="block text-[10px] font-semibold text-slate-400 mb-1">Kiadás kategóriája</label>
+                <select id="qbCategory" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                  <option value="szórakozás">🎭 Szórakozás</option>
+                  <option value="hasznos">🛒 Hasznos</option>
+                </select>
+              </div>
+              <div class="col-span-2">
+                <label class="block text-[10px] font-semibold text-slate-400 mb-1">Összeg (Ft)</label>
+                <input type="number" id="qbAmount" required min="1" step="50" placeholder="pl. 3500" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white font-bold focus:outline-none focus:border-emerald-500">
+              </div>
+            </div>
+            <div class="grid grid-cols-4 gap-2">
+              <div class="col-span-1">
+                <label class="block text-[10px] font-semibold text-slate-400 mb-1">Ikon / Emoji</label>
+                <input type="text" id="qbIcon" required placeholder="🛒" maxlength="4" value="⚡" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2 py-1.5 text-center text-sm focus:outline-none focus:border-emerald-500">
+              </div>
+              <div class="col-span-3">
+                <label class="block text-[10px] font-semibold text-slate-400 mb-1">Megnevezés / Felirat</label>
+                <input type="text" id="qbLabel" required placeholder="pl. Bevásárlás, Kávé, Tankolás" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+              </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-1">
+              <button type="submit" id="qbSubmitBtn" class="px-4 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md">
+                Gomb mentése
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Existing Quick Buttons List -->
+        <div class="mt-3 flex-1 overflow-y-auto pr-1 space-y-2" id="manageQuickButtonsList">
+          <!-- Rendered by JS -->
+        </div>
+
+        <div class="flex items-center justify-between pt-3 mt-3 border-t border-slate-800 shrink-0">
+          <button onclick="app.resetDefaultQuickButtons()" class="text-xs text-slate-400 hover:text-amber-400 flex items-center gap-1 transition">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Alapértelmezett gombok visszaállítása
+          </button>
+          <button onclick="app.closeManageQuickButtonsModal()" class="px-4 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white">
+            Kész
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: EDIT SAVINGS HISTORY ITEM -->
+    <div id="editHistoryModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl relative">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+          <h3 class="text-base font-bold text-white flex items-center gap-1.5">
+            <span>✏️</span> Tranzakció Módosítása
+          </h3>
+          <button onclick="app.closeEditHistoryModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+        </div>
+        <form onsubmit="app.handleSaveHistoryItem(event)" class="space-y-3">
+          <input type="hidden" id="editHistoryId">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Megnevezés / Esemény</label>
+            <input type="text" id="editHistoryTitle" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 mb-1">Összeg (Ft)</label>
+              <input type="number" id="editHistoryAmount" required step="1" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-emerald-400 font-bold focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-400 mb-1">Dátum</label>
+              <input type="text" id="editHistoryDate" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Részletezés / Elosztás megjegyzés</label>
+            <textarea id="editHistoryBreakdown" rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-emerald-500"></textarea>
+          </div>
+          <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+            <button type="button" onclick="app.closeEditHistoryModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">Mégse</button>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-lg">Mentés</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: UNIVERSAL IN-APP CONFIRM DIALOG -->
+    <div id="confirmModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-5 shadow-2xl relative text-center">
+        <div class="w-12 h-12 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto mb-3 text-xl">
+          ⚠️
+        </div>
+        <h4 id="confirmModalTitle" class="text-base font-bold text-white mb-2">Biztosan törölni szeretnéd?</h4>
+        <p id="confirmModalMessage" class="text-xs text-slate-400 mb-5 leading-relaxed">Ez a művelet nem vonható vissza.</p>
+        <div class="flex items-center gap-2">
+          <button id="confirmModalCancelBtn" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">
+            Mégse
+          </button>
+          <button id="confirmModalActionBtn" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition shadow-lg shadow-rose-900/40">
+            Törlés
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: RECEIPT OCR SCANNER -->
+    <div id="receiptScanModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl relative max-h-[90vh] flex flex-col">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800 shrink-0">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">📸</span>
+            <div>
+              <h3 class="text-base font-bold text-white leading-tight">Blokk Beolvasása (AI)</h3>
+              <p class="text-xs text-slate-400">Automatikus összeg, üzlet és kategória felismerés</p>
+            </div>
+          </div>
+          <button onclick="app.closeScanModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+        </div>
+
+        <div class="mt-3 flex-1 overflow-y-auto space-y-3 pr-1">
+          <!-- Image preview container -->
+          <div class="relative w-full h-44 rounded-xl bg-slate-950 border border-slate-800 overflow-hidden flex items-center justify-center">
+            <img id="receiptPreviewImg" src="" alt="Blokk fotó" class="w-full h-full object-contain hidden">
+            <!-- Scanning pulse effect -->
+            <div id="receiptScanningAnimation" class="absolute inset-0 bg-slate-950/80 flex flex-col items-center justify-center gap-2">
+              <div class="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+              <span class="text-xs font-bold text-cyan-300 animate-pulse">Blokk elemzése Gemini AI-val...</span>
+            </div>
+          </div>
+
+          <!-- Detection Results / Editable fields -->
+          <div id="receiptResultForm" class="space-y-2.5">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Kiolvasott összeg (Ft)</label>
+              <div class="relative">
+                <input type="number" id="scannedAmount" required placeholder="0" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-rose-400 font-extrabold text-base focus:outline-none focus:border-cyan-500">
+                <span class="absolute right-3 top-2 text-xs text-slate-500 font-semibold">Ft</span>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Üzlet / Megjegyzés</label>
+              <input type="text" id="scannedMerchant" required placeholder="pl. Szupermarket, Étterem, Bolt" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Kategória</label>
+              <div class="grid grid-cols-2 gap-2">
+                <label class="cursor-pointer">
+                  <input type="radio" name="scannedCategoryRadio" id="scannedCatSzorakozas" value="szórakozás" class="peer sr-only">
+                  <div class="p-2 rounded-xl border border-slate-700 bg-slate-950 text-slate-400 peer-checked:border-purple-500 peer-checked:bg-purple-950/40 peer-checked:text-purple-300 font-bold text-xs flex items-center justify-center gap-1.5 transition">
+                    <span>🎭</span> Szórakozás
+                  </div>
+                </label>
+                <label class="cursor-pointer">
+                  <input type="radio" name="scannedCategoryRadio" id="scannedCatHasznos" value="hasznos" class="peer sr-only" checked>
+                  <div class="p-2 rounded-xl border border-slate-700 bg-slate-950 text-slate-400 peer-checked:border-emerald-500 peer-checked:bg-emerald-950/40 peer-checked:text-emerald-300 font-bold text-xs flex items-center justify-center gap-1.5 transition">
+                    <span>🛒</span> Hasznos
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div id="scannedSummaryBox" class="p-2 rounded-xl bg-slate-950/70 border border-slate-800 text-[11px] text-slate-400">
+              <span class="font-bold text-slate-300 block mb-0.5">Tételek kivonata:</span>
+              <span id="scannedSummaryText">-</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-3 border-t border-slate-800 mt-2 shrink-0">
+          <button type="button" onclick="app.closeScanModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">
+            Mégse
+          </button>
+          <button type="button" id="confirmScanExpenseBtn" onclick="app.confirmScannedExpense()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs shadow-lg transition flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <span>Hozzáadás a heti kiadásokhoz</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: WEEK CLOSED SURPLUS DECISION MODAL (Maradvány-kezelés) -->
+    <div id="weekClosedDecisionModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl relative">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-lg">⏳</span>
+            <div>
+              <h3 class="text-base font-bold text-white leading-tight" id="decisionModalWeekTitle">Az 1. hét lezárult. Fennmaradó összeg: 0 Ft</h3>
+              <p class="text-xs text-amber-300 font-semibold flex items-center gap-1 mt-0.5">
+                <span>📌</span>
+                <span>Függőben lévő összeg döntése</span>
+              </p>
+            </div>
+          </div>
+          <button onclick="app.closeWeekDecisionModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+        </div>
+
+        <div class="my-4 p-4 rounded-xl bg-slate-950 border border-slate-800 text-center space-y-1">
+          <span class="text-xs text-slate-400 font-medium">Fennmaradó maradványösszeg:</span>
+          <div id="decisionModalSurplusAmount" class="text-2xl font-black text-emerald-400">0 Ft</div>
+          <p class="text-[11px] text-slate-400">Ez a pénz nincs automatikusan elköltve. Válassz az alábbi két lehetőség közül:</p>
+        </div>
+
+        <!-- 2 Main Decision Options -->
+        <div class="space-y-2.5 mb-4">
+          <button type="button" onclick="app.decisionAddToNextWeek()" id="btnDecisionToNextWeek" class="w-full p-3.5 rounded-xl bg-blue-950/40 hover:bg-blue-900/60 border border-blue-500/50 text-left transition group active:scale-[0.98]">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-blue-200 group-hover:text-white">1. Hozzáadás a következő héthez</span>
+              <span class="text-xs font-bold text-blue-400">⏩ Rollover</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1" id="decisionNextWeekDesc">Megnöveli az új hét keretét ezzel az összeggel.</p>
+          </button>
+
+          <button type="button" onclick="app.decisionShowGoalSelection()" id="btnDecisionToGoal" class="w-full p-3.5 rounded-xl bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-500/50 text-left transition group active:scale-[0.98]">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-emerald-200 group-hover:text-white">2. Átutalás megtakarítási célhoz</span>
+              <span class="text-xs font-bold text-emerald-400">💰 Megtakarítás</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1">Rákattintva kiválaszthatod, melyik megtakarítási célodhoz utalod át.</p>
+          </button>
+        </div>
+
+        <!-- Goal Selection sub-container (revealed when user chooses option 2) -->
+        <div id="decisionGoalSelector" class="hidden pt-3 border-t border-slate-800 space-y-2">
+          <span class="text-xs font-bold text-slate-300 block">Válaszd ki, melyik célhoz utalod:</span>
+          <div id="decisionGoalsList" class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-3 border-t border-slate-800 mt-3">
+          <button type="button" onclick="app.closeWeekDecisionModal()" class="text-xs text-slate-400 hover:text-slate-200">
+            Döntés később (maradjon függőben lévő összegként)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: DIRECT EDIT OF WEEK VALUES (Manual Override minden mezőre) -->
+    <div id="editWeekValuesModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl relative">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-lg">✏️</span>
+            <div>
+              <h3 class="text-base font-bold text-white leading-tight" id="editValuesModalTitle">Heti értékek korrigálása</h3>
+              <p class="text-xs text-slate-400">Közvetlen kézi felülbírálás minden mezőre</p>
+            </div>
+          </div>
+          <button onclick="app.closeEditWeekValuesModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+        </div>
+
+        <form onsubmit="app.handleSaveWeekValues(event)" class="space-y-3.5">
+          <!-- Active Week Selection -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Melyik hét értékeit szerkeszted?</label>
+            <div class="grid grid-cols-4 gap-1.5" id="editValuesWeekSelector">
+              <button type="button" onclick="app.switchEditModalWeek(1)" id="editWeekBtn-1" class="py-1.5 px-2 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-300 border border-slate-700">1. hét</button>
+              <button type="button" onclick="app.switchEditModalWeek(2)" id="editWeekBtn-2" class="py-1.5 px-2 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-300 border border-slate-700">2. hét</button>
+              <button type="button" onclick="app.switchEditModalWeek(3)" id="editWeekBtn-3" class="py-1.5 px-2 rounded-lg text-xs font-bold transition bg-cyan-600 text-white border border-cyan-500">3. hét</button>
+              <button type="button" onclick="app.switchEditModalWeek(4)" id="editWeekBtn-4" class="py-1.5 px-2 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-300 border border-slate-700">4. hét</button>
+            </div>
+          </div>
+
+          <!-- a) Heti induló keret -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs font-semibold text-slate-300">
+                Heti induló keret (Ft):
+              </label>
+              <div class="flex items-center gap-1">
+                <button type="button" onclick="document.getElementById('editModalBaseBudget').value = 7000" class="px-2 py-0.5 rounded text-[10px] bg-cyan-950/80 text-cyan-300 border border-cyan-800 font-bold">7k</button>
+                <button type="button" onclick="document.getElementById('editModalBaseBudget').value = 10000" class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300 border border-slate-700 font-bold">10k</button>
+                <button type="button" onclick="document.getElementById('editModalBaseBudget').value = 15000" class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300 border border-slate-700 font-bold">15k</button>
+              </div>
+            </div>
+            <div class="relative">
+              <input type="number" id="editModalBaseBudget" required step="500" min="0" placeholder="15000" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white font-bold focus:outline-none focus:border-cyan-500">
+              <span class="absolute right-3 top-2 text-xs text-slate-500 font-semibold">Ft</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1">Az adott hét kiinduló kerete.</p>
+          </div>
+
+          <!-- b) Áthozott pénz előző hétről (Rollover) -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs font-semibold text-slate-300">
+                Áthozott pénz előző hétről (Ft):
+              </label>
+              <div class="flex items-center gap-1">
+                <button type="button" onclick="document.getElementById('editModalRollover').value = 0" class="px-2 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 font-bold">0 Ft (Tiszta)</button>
+                <button type="button" onclick="document.getElementById('editModalRollover').value = -3000" class="px-1.5 py-0.5 rounded text-[10px] bg-rose-950/70 hover:bg-rose-900 text-rose-300 border border-rose-700/60 font-bold">-3k</button>
+                <button type="button" onclick="document.getElementById('editModalRollover').value = 4000" class="px-1.5 py-0.5 rounded text-[10px] bg-emerald-950/70 hover:bg-emerald-900 text-emerald-300 border border-emerald-700/60 font-bold">+4k</button>
+              </div>
+            </div>
+            <div class="relative">
+              <input type="number" id="editModalRollover" step="500" placeholder="0" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-cyan-300 font-bold focus:outline-none focus:border-cyan-500">
+              <span class="absolute right-3 top-2 text-xs text-slate-500 font-semibold">Ft</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1">Beírhatsz <strong>0 Ft-ot</strong> (tiszta indulás), negatív hiányt vagy pozitív áthozatot.</p>
+          </div>
+
+          <!-- c) Hátralévő keret erre a hétre (Közvetlen felülbírálás) -->
+          <div class="p-3 rounded-xl bg-slate-950/80 border border-emerald-800/40">
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs font-bold text-emerald-300">
+                Hátralévő keret erre a hétre (Közvetlen érték):
+              </label>
+              <div class="flex items-center gap-1">
+                <button type="button" onclick="document.getElementById('editModalRemaining').value = 8500" class="px-2 py-0.5 rounded text-[10px] bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-700 font-bold">8 500 Ft</button>
+                <button type="button" onclick="document.getElementById('editModalRemaining').value = 10000" class="px-1.5 py-0.5 rounded text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-bold">10k</button>
+                <button type="button" onclick="app.calcEditModalRemainingFromFormula()" class="px-1.5 py-0.5 rounded text-[10px] bg-cyan-950/80 hover:bg-cyan-900 text-cyan-300 border border-cyan-800 font-bold" title="Képlet: Induló + Áthozat - Költés">Képlet</button>
+              </div>
+            </div>
+            <div class="relative">
+              <input type="number" id="editModalRemaining" step="100" placeholder="pl. 8500" class="w-full bg-slate-900 border border-emerald-600/60 rounded-xl px-3 py-2 text-sm text-emerald-400 font-extrabold focus:outline-none focus:border-emerald-400">
+              <span class="absolute right-3 top-2 text-xs text-slate-500 font-semibold">Ft</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1">
+              Ha most pontosan tudod a hátralévő összeget (pl. <strong>8 500 Ft</strong>), írd be ide közvetlenül! Felülbírálja a képleteket.
+            </p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-2 pt-2 border-t border-slate-800">
+            <button type="button" onclick="app.resetWeekFormulas()" class="text-xs text-slate-400 hover:text-rose-300 underline py-1">
+              ↺ Kézi korrekciók törlése (Alaphelyzet)
+            </button>
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+              <button type="button" onclick="app.closeEditWeekValuesModal()" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">
+                Mégse
+              </button>
+              <button type="submit" class="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs shadow-lg transition">
+                💾 Mentés
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: RESET CYCLE / MID-CYCLE START (Hétközi kezdés & Nullázás) -->
+    <div id="resetCycleModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl relative">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg">⚡</span>
+            <div>
+              <h3 class="text-base font-bold text-white leading-tight">Ciklus Újraindítása / Hétközi Kezdés</h3>
+              <p class="text-xs text-slate-400">Korábbi hetek nullázása és tiszta indulás</p>
+            </div>
+          </div>
+          <button onclick="app.closeResetCycleModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+        </div>
+
+        <div class="space-y-3.5">
+          <div class="p-3 rounded-xl bg-amber-950/30 border border-amber-700/40 text-xs text-amber-200/90 leading-relaxed">
+            <p class="font-bold text-amber-300 mb-1">Hét közben kezded az alkalmazást?</p>
+            <p>
+              Ha most (pl. a <strong>3. héten</strong>) csatlakozol, ez a funkció archiválja és lezárja a korábbi heteket <strong>0 Ft áthozattal</strong>. Nem jelennek meg fiktív maradványok vagy hiányok a múltból, és a kiválasztott hét tiszta lappal indul a megadott kereteddel.
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Melyik héttel kívánsz indulni?</label>
+            <div class="grid grid-cols-4 gap-1.5" id="resetCycleWeekSelector">
+              <button type="button" onclick="app.setResetCycleWeek(1)" id="resetWeekBtn-1" class="py-2 px-2 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-300 border border-slate-700">1. hét</button>
+              <button type="button" onclick="app.setResetCycleWeek(2)" id="resetWeekBtn-2" class="py-2 px-2 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-300 border border-slate-700">2. hét</button>
+              <button type="button" onclick="app.setResetCycleWeek(3)" id="resetWeekBtn-3" class="py-2 px-2 rounded-lg text-xs font-bold transition bg-amber-500 text-slate-950 border border-amber-400 shadow">3. hét</button>
+              <button type="button" onclick="app.setResetCycleWeek(4)" id="resetWeekBtn-4" class="py-2 px-2 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-300 border border-slate-700">4. hét</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs font-semibold text-slate-300">
+                Kezdő költőpénz az induló hétre:
+              </label>
+              <div class="flex items-center gap-1">
+                <button type="button" onclick="document.getElementById('resetCycleStartBudget').value = 7000" class="px-2 py-0.5 rounded text-[10px] bg-cyan-950/80 text-cyan-300 border border-cyan-800 font-extrabold">7 000 Ft</button>
+                <button type="button" onclick="document.getElementById('resetCycleStartBudget').value = 10000" class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300 border border-slate-700 font-bold">10 000 Ft</button>
+                <button type="button" onclick="document.getElementById('resetCycleStartBudget').value = 15000" class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300 border border-slate-700 font-bold">15 000 Ft</button>
+              </div>
+            </div>
+            <div class="relative">
+              <input type="number" id="resetCycleStartBudget" value="7000" min="0" step="500" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-emerald-400 font-extrabold focus:outline-none focus:border-amber-500">
+              <span class="absolute right-3 top-2 text-xs text-slate-500 font-semibold">Ft</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1">Az előző hetek 0 Ft áthozattal lezárulnak, így pontosan ezzel az összeggel rendelkezel a héten.</p>
+          </div>
+
+          <div class="space-y-2 pt-2 border-t border-slate-800">
+            <button type="button" onclick="app.confirmMidCycleStart()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-emerald-400 hover:from-amber-400 hover:to-emerald-300 text-slate-950 font-black text-xs shadow-lg transition flex items-center justify-center gap-2">
+              <span>🚀 Indítás ezzel a héttel (Korábbiak nullázása)</span>
+            </button>
+
+            <button type="button" onclick="app.confirmResetAllWeeksToDefault()" class="w-full py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700/60 transition">
+              🔄 Teljes ciklus újraindítása (1. héttől tiszta keret)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL: ELSŐ INDÍTÁS VARÁZSLÓ (ONBOARDING SETUP WIZARD)   -->
+    <!-- ======================================================== -->
+    <div id="onboardingModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <div class="bg-gradient-to-b from-slate-900 via-slate-900 to-[#0a0f1d] border border-slate-700/80 w-full max-w-xl rounded-3xl p-5 sm:p-7 shadow-2xl relative my-auto">
+        <!-- Wizard Header -->
+        <div class="text-center mb-5">
+          <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-950 font-black text-2xl shadow-lg shadow-emerald-500/25 mb-2.5">
+            $
+          </div>
+          <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">Pénzügyi Tervező Beállítása</h2>
+          <p class="text-xs text-slate-400 max-w-md mx-auto mt-1">
+            Állítsd be a saját havi ciklusodat, fix kiadásaidat és céljaidat 4 egyszerű lépésben!
+          </p>
+        </div>
+
+        <!-- Progress Steps Indicator -->
+        <div class="grid grid-cols-4 gap-1.5 sm:gap-2 mb-5">
+          <div id="wizardStepIndicator-1" class="flex flex-col items-center">
+            <div class="w-full h-1.5 rounded-full bg-emerald-500 transition-all duration-300"></div>
+            <span class="text-[10px] font-bold text-emerald-400 mt-1">1. Ciklus</span>
+          </div>
+          <div id="wizardStepIndicator-2" class="flex flex-col items-center">
+            <div class="w-full h-1.5 rounded-full bg-slate-800 transition-all duration-300"></div>
+            <span class="text-[10px] font-bold text-slate-500 mt-1">2. Fixek</span>
+          </div>
+          <div id="wizardStepIndicator-3" class="flex flex-col items-center">
+            <div class="w-full h-1.5 rounded-full bg-slate-800 transition-all duration-300"></div>
+            <span class="text-[10px] font-bold text-slate-500 mt-1">3. Célok</span>
+          </div>
+          <div id="wizardStepIndicator-4" class="flex flex-col items-center">
+            <div class="w-full h-1.5 rounded-full bg-slate-800 transition-all duration-300"></div>
+            <span class="text-[10px] font-bold text-slate-500 mt-1">4. Keret</span>
+          </div>
+        </div>
+
+        <!-- STEP 1: Havi ciklus & Garantált Bevétel -->
+        <div id="wizardStep-1" class="space-y-4">
+          <div class="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800">
+            <label class="block text-xs font-bold text-white mb-2">1. Melyik napon érkezik a garantált havi bevételed?</label>
+            <div class="grid grid-cols-3 gap-2 mb-2.5">
+              <button type="button" onclick="app.setWizardCycleDay(1)" id="wizardDayBtn-1" class="py-2.5 px-2 rounded-xl text-xs font-bold border transition bg-emerald-500 text-slate-950 border-emerald-400 shadow">
+                1. nap<br><span class="text-[10px] font-normal opacity-90">Hónap eleje</span>
+              </button>
+              <button type="button" onclick="app.setWizardCycleDay(15)" id="wizardDayBtn-15" class="py-2.5 px-2 rounded-xl text-xs font-bold border transition bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600">
+                15. nap<br><span class="text-[10px] font-normal opacity-90">Hó közepe</span>
+              </button>
+              <button type="button" onclick="app.setWizardCycleDay('custom')" id="wizardDayBtn-custom" class="py-2.5 px-2 rounded-xl text-xs font-bold border transition bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600">
+                Egyedi<br><span class="text-[10px] font-normal opacity-90">Tetszőleges nap</span>
+              </button>
+            </div>
+
+            <div id="wizardCustomDayRow" class="hidden pt-2 border-t border-slate-800/80">
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Ciklus kezdőnapja a hónapban (1-31):</label>
+              <input type="number" id="wizardCustomCycleDayInput" min="1" max="31" value="10" oninput="app.updateWizardCustomDay(this.value)" class="w-24 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-bold focus:outline-none focus:border-emerald-500">
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1.5">
+              A 4 hetes gördülő költési ciklus ettől a naptól indul automatikusan.
+            </p>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800">
+            <label class="block text-xs font-bold text-white mb-1.5">2. Garantált Havi Bevétel összege:</label>
+            <div class="relative">
+              <input type="number" id="wizardIncomeInput" min="0" step="1000" placeholder="pl. 350000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-emerald-400 font-extrabold text-lg focus:outline-none focus:border-emerald-500">
+              <span class="absolute right-3.5 top-2.5 text-sm font-bold text-slate-500">Ft / hó</span>
+            </div>
+            <div class="flex items-center gap-1.5 mt-2">
+              <button type="button" onclick="document.getElementById('wizardIncomeInput').value = 250000" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[10px] font-bold text-slate-300">250k</button>
+              <button type="button" onclick="document.getElementById('wizardIncomeInput').value = 350000" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[10px] font-bold text-slate-300">350k</button>
+              <button type="button" onclick="document.getElementById('wizardIncomeInput').value = 500000" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[10px] font-bold text-slate-300">500k</button>
+              <button type="button" onclick="document.getElementById('wizardIncomeInput').value = 750000" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[10px] font-bold text-slate-300">750k</button>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1.5">
+              Biztos, kiszámítható havi jövedelem (pl. munkabér, ösztöndíj).
+            </p>
+          </div>
+
+          <div class="flex justify-end pt-3">
+            <button type="button" onclick="app.wizardGoToStep(2)" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs shadow-lg transition flex items-center gap-1.5">
+              <span>Tovább a Fix Kiadásokhoz</span>
+              <span>→</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 2: Fix Havi Kiadások (Dinamikus lista, semmi sincs beégetve) -->
+        <div id="wizardStep-2" class="space-y-4 hidden">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-bold text-white">Fix Havi Kiadások</h3>
+              <p class="text-xs text-slate-400">Rendszeres költségek (pl. lakbér, számlák, előfizetések, bérlet)</p>
+            </div>
+            <button type="button" onclick="app.addWizardFixedRow()" class="px-3 py-1.5 rounded-xl bg-emerald-600/80 hover:bg-emerald-500 text-slate-950 font-bold text-xs transition flex items-center gap-1 shadow">
+              + Tétel hozzáadása
+            </button>
+          </div>
+
+          <div id="wizardFixedList" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+            <!-- Dynamically populated rows -->
+          </div>
+
+          <!-- Total summary banner for Step 2 -->
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs">
+            <div>
+              <span class="text-slate-400 block">Összes fix kiadás:</span>
+              <span id="wizardTotalFixed" class="font-bold text-rose-400 text-sm">0 Ft</span>
+            </div>
+            <div class="text-right">
+              <span class="text-slate-400 block">Maradék szabad keret:</span>
+              <span id="wizardFreeBudgetStep2" class="font-bold text-emerald-400 text-sm">0 Ft</span>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-3 border-t border-slate-800">
+            <button type="button" onclick="app.wizardGoToStep(1)" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">
+              ← Vissza
+            </button>
+            <button type="button" onclick="app.wizardGoToStep(3)" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs shadow-lg transition flex items-center gap-1.5">
+              <span>Tovább a Célokhoz</span>
+              <span>→</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 3: Megtakarítási Célok (100% arány ellenőrzéssel) -->
+        <div id="wizardStep-3" class="space-y-4 hidden">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-bold text-white">Megtakarítási Célok</h3>
+              <p class="text-xs text-slate-400">Változó bevételek automatikus szétosztásához (arányok összege = 100%)</p>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button type="button" onclick="app.balanceWizardGoalPercents()" title="Arányok egyenlő elosztása" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-semibold border border-slate-700">
+                ⚖️ Kiegyenlítés
+              </button>
+              <button type="button" onclick="app.addWizardGoalRow()" class="px-3 py-1.5 rounded-xl bg-emerald-600/80 hover:bg-emerald-500 text-slate-950 font-bold text-xs transition flex items-center gap-1 shadow">
+                + Új cél
+              </button>
+            </div>
+          </div>
+
+          <div id="wizardGoalsList" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+            <!-- Dynamically populated rows -->
+          </div>
+
+          <!-- Percentage validation bar -->
+          <div id="wizardPercentValidationBox" class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs">
+            <span class="text-slate-400">Százalékos arányok összege:</span>
+            <span id="wizardTotalPercentBadge" class="font-black px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 text-xs">
+              100% ✅
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between pt-3 border-t border-slate-800">
+            <button type="button" onclick="app.wizardGoToStep(2)" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">
+              ← Vissza
+            </button>
+            <button type="button" id="wizardToStep4Btn" onclick="app.wizardGoToStep(4)" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs shadow-lg transition flex items-center gap-1.5">
+              <span>Tovább a Heti Kerethez</span>
+              <span>→</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 4: Heti Költőpénz Keret és Induló Összeg -->
+        <div id="wizardStep-4" class="space-y-4 hidden">
+          <div>
+            <h3 class="text-sm font-bold text-white">Heti Költőpénz Keret & Indulás</h3>
+            <p class="text-xs text-slate-400">Add meg a heti költési alapkeretet és az induló hetet.</p>
+          </div>
+
+          <!-- Suggested Weekly Budget Box -->
+          <div class="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-950/30 to-slate-950 border border-emerald-800/40 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-300">Szabad havi keret (Bevétel - Fixek):</span>
+              <span id="wizardFreeMonthlyCalc" class="text-sm font-extrabold text-emerald-400">0 Ft</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-400">Javasolt heti keret (maradék / 4):</span>
+              <span id="wizardSuggestedWeeklyCalc" class="font-extrabold text-emerald-300">0 Ft / hét</span>
+            </div>
+            <button type="button" onclick="app.applyWizardSuggestedBudget()" class="w-full py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-bold text-xs border border-emerald-500/40 transition flex items-center justify-center gap-1.5">
+              ✨ Javasolt heti keret alkalmazása
+            </button>
+          </div>
+
+          <!-- Custom Weekly Budget Input -->
+          <div class="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800">
+            <label class="block text-xs font-bold text-white mb-1.5">Heti Költőpénz Keret összege (Ft):</label>
+            <div class="relative">
+              <input type="number" id="wizardWeeklyBudgetInput" min="1000" step="500" placeholder="15000" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-emerald-400 font-extrabold text-base focus:outline-none focus:border-emerald-500">
+              <span class="absolute right-3.5 top-2.5 text-xs font-semibold text-slate-500">Ft / hét</span>
+            </div>
+          </div>
+
+          <!-- Starting week selection -->
+          <div class="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800">
+            <label class="block text-xs font-bold text-white mb-1">Melyik héttel kívánsz indulni?</label>
+            <p class="text-[11px] text-slate-400 mb-2">Ha most a 2., 3. vagy 4. héten csatlakozol, a korábbi hetek automatikusan 0 Ft áthozattal archiválódnak.</p>
+            <div class="grid grid-cols-4 gap-1.5" id="wizardWeekSelector">
+              <button type="button" onclick="app.setWizardStartWeek(1)" id="wizardWeekBtn-1" class="py-2 rounded-lg text-xs font-bold transition bg-emerald-500 text-slate-950 border border-emerald-400 shadow">1. hét</button>
+              <button type="button" onclick="app.setWizardStartWeek(2)" id="wizardWeekBtn-2" class="py-2 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-300 border border-slate-700">2. hét</button>
+              <button type="button" onclick="app.setWizardStartWeek(3)" id="wizardWeekBtn-3" class="py-2 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-300 border border-slate-700">3. hét</button>
+              <button type="button" onclick="app.setWizardStartWeek(4)" id="wizardWeekBtn-4" class="py-2 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-300 border border-slate-700">4. hét</button>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-3 border-t border-slate-800">
+            <button type="button" onclick="app.wizardGoToStep(3)" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">
+              ← Vissza
+            </button>
+            <button type="button" onclick="app.saveAndFinishWizard()" class="px-7 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 hover:from-emerald-400 hover:to-cyan-300 text-slate-950 font-black text-sm shadow-xl transition active:scale-[0.98] flex items-center gap-2">
+              <span>🚀 Mentés és Indítás</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL: BEÁLLÍTÁSOK MENÜ ÉS ALKALMAZÁS NULLÁZÁSA          -->
+    <!-- ======================================================== -->
+    <div id="settingsModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-5 shadow-2xl relative my-auto max-h-[92vh] flex flex-col">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800 shrink-0">
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg">⚙️</span>
+            <div>
+              <h3 class="text-base font-bold text-white leading-tight">Beállítások</h3>
+              <p class="text-xs text-slate-400">Keretek, fix kiadások, célok és gyorsgombok</p>
+            </div>
+          </div>
+          <button onclick="app.closeSettingsModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+        </div>
+
+        <!-- Navigation Tabs inside Settings Modal -->
+        <div class="grid grid-cols-4 gap-1 p-1 bg-slate-950 rounded-xl border border-slate-800 my-3 shrink-0 text-[11px] font-bold">
+          <button type="button" onclick="app.switchSettingsTab('budget')" id="settingsTabBtn-budget" class="py-1.5 px-1 rounded-lg bg-emerald-500 text-slate-950 text-center transition">Havi Keret</button>
+          <button type="button" onclick="app.switchSettingsTab('fixed')" id="settingsTabBtn-fixed" class="py-1.5 px-1 rounded-lg text-slate-400 hover:text-white text-center transition">Fixek</button>
+          <button type="button" onclick="app.switchSettingsTab('goals')" id="settingsTabBtn-goals" class="py-1.5 px-1 rounded-lg text-slate-400 hover:text-white text-center transition">Célok</button>
+          <button type="button" onclick="app.switchSettingsTab('quick')" id="settingsTabBtn-quick" class="py-1.5 px-1 rounded-lg text-slate-400 hover:text-white text-center transition">Gyorsgombok</button>
+        </div>
+
+        <!-- Scrollable Tab Content Container -->
+        <div class="flex-1 overflow-y-auto pr-1 space-y-3.5">
+          <!-- 1. Havi Keret & Ciklus Tab -->
+          <div id="settingsPanel-budget" class="space-y-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Garantált Havi Bevétel (Ft):</label>
+              <input type="number" id="settingsGuaranteedIncome" min="0" step="1000" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-emerald-400 font-bold focus:outline-none focus:border-emerald-500">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Ciklus indulási napja a hónapban:</label>
+              <div class="grid grid-cols-3 gap-2">
+                <button type="button" onclick="app.setSettingsCycleDay(1)" id="settingsCycleBtn-1" class="py-2 px-2 rounded-xl text-xs font-bold border transition bg-emerald-500 text-slate-950 border-emerald-400">1. nap</button>
+                <button type="button" onclick="app.setSettingsCycleDay(15)" id="settingsCycleBtn-15" class="py-2 px-2 rounded-xl text-xs font-bold border transition bg-slate-800 text-slate-300 border-slate-700">15. nap</button>
+                <button type="button" onclick="app.setSettingsCycleDay('custom')" id="settingsCycleBtn-custom" class="py-2 px-2 rounded-xl text-xs font-bold border transition bg-slate-800 text-slate-300 border-slate-700">Egyedi</button>
+              </div>
+              <div id="settingsCustomDayRow" class="hidden mt-2">
+                <input type="number" id="settingsCustomDayInput" min="1" max="31" class="w-24 bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-bold focus:outline-none focus:border-emerald-500">
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-xs font-semibold text-slate-300">Heti Költőpénz Alapkeret (Ft / hét):</label>
+                <button type="button" onclick="app.syncSettingsBudgetWithFree()" class="text-[10px] text-emerald-400 hover:underline">Szabad keret / 4</button>
+              </div>
+              <input type="number" id="settingsWeeklyBudget" min="0" step="500" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white font-bold focus:outline-none focus:border-emerald-500">
+            </div>
+
+            <button type="button" onclick="app.saveSettingsBudget()" class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md transition">
+              Havi adatok mentése
+            </button>
+          </div>
+
+          <!-- 2. Fix Kiadások Tab -->
+          <div id="settingsPanel-fixed" class="space-y-3 hidden">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-300">Rögzített fix kiadások:</span>
+              <button type="button" onclick="app.addSettingsFixedRow()" class="px-2.5 py-1 rounded-lg bg-emerald-600/80 hover:bg-emerald-500 text-slate-950 font-bold text-xs transition">
+                + Tétel
+              </button>
+            </div>
+            <div id="settingsFixedList" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+              <!-- Dynamically populated -->
+            </div>
+            <button type="button" onclick="app.saveSettingsFixed()" class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md transition">
+              Fix kiadások mentése
+            </button>
+          </div>
+
+          <!-- 3. Megtakarítási Célok Tab -->
+          <div id="settingsPanel-goals" class="space-y-3 hidden">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-300">Megtakarítási célok és arányok:</span>
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="app.balanceSettingsGoalPercents()" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-semibold">
+                  ⚖️ Kiegyenlítés
+                </button>
+                <button type="button" onclick="app.addSettingsGoalRow()" class="px-2.5 py-1 rounded-lg bg-emerald-600/80 hover:bg-emerald-500 text-slate-950 font-bold text-xs transition">
+                  + Új cél
+                </button>
+              </div>
+            </div>
+            <div id="settingsGoalsList" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+              <!-- Dynamically populated -->
+            </div>
+            <div id="settingsGoalValidation" class="p-2 rounded-xl bg-slate-950 border border-slate-800 text-xs flex items-center justify-between">
+              <span class="text-slate-400">Arányok összege:</span>
+              <span id="settingsGoalPercentTotal" class="font-bold text-emerald-400">100% ✅</span>
+            </div>
+            <button type="button" onclick="app.saveSettingsGoals()" class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md transition">
+              Célok mentése
+            </button>
+          </div>
+
+          <!-- 4. Gyorsgombok Tab -->
+          <div id="settingsPanel-quick" class="space-y-3 hidden">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="text-xs font-semibold text-white block">Gyorsgombok testreszabása (2-4 db)</span>
+                <span class="text-[10px] text-slate-400">1-kattintásos kiadási és bevételi gombok</span>
+              </div>
+              <button type="button" onclick="app.openManageQuickButtonsModal()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xs font-bold border border-slate-700">
+                Kezelő megnyitása
+              </button>
+            </div>
+            <div id="settingsQuickButtonsList" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer / Danger Zone: App Reset -->
+        <div class="pt-3 mt-3 border-t border-slate-800 shrink-0 space-y-2">
+          <div class="p-3 rounded-xl bg-rose-950/20 border border-rose-900/40 flex items-center justify-between">
+            <div>
+              <span class="text-xs font-bold text-rose-300 block">Alkalmazás nullázása</span>
+              <span class="text-[10px] text-slate-400">Összes adat törlése és a varázsló újraindítása</span>
+            </div>
+            <button type="button" onclick="app.confirmResetAppEntirely()" class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow transition">
+              Reset App
+            </button>
+          </div>
+          <div class="flex justify-end">
+            <button type="button" onclick="app.closeSettingsModal()" class="px-4 py-1.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">
+              Bezárás
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Application Core Script -->
+    <script src="/src/app.js"></script>
+  </body>
+</html>
