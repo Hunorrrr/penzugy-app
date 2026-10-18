@@ -349,7 +349,7 @@ class BudgetApp {
     const val = parseInt(input?.value, 10);
 
     if (isNaN(val) || val < 0) {
-      alert('Kérlek adj meg érvényes forint összeget!');
+      this.showToast ? this.showToast('Kérlek adj meg érvényes forint összeget!', '⚠️') : alert('Kérlek adj meg érvényes forint összeget!');
       return;
     }
 
@@ -425,31 +425,9 @@ class BudgetApp {
   }
 
   init() {
-    // PWA Service Worker registration
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(() => {});
-      });
-    }
-
     // Event listeners
     document.getElementById('openSettingsBtn')?.addEventListener('click', () => this.openSettingsModal());
     document.getElementById('exportImportBtn')?.addEventListener('click', () => this.openBackupModal());
-
-    const distInput = document.getElementById('distributeAmount');
-    if (distInput) {
-      distInput.addEventListener('input', () => this.updateDistributePreview());
-    }
-
-    const customInput = document.getElementById('customWeekBudgetInput');
-    if (customInput) {
-      customInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          this.saveCustomWeekBudget();
-        }
-      });
-    }
 
     // Auto-check for closed weeks with pending surpluses
     this.checkAndFlagClosedWeeksSurplus();
@@ -690,7 +668,7 @@ class BudgetApp {
     const icon = document.getElementById('qbIcon').value.trim() || '⚡';
 
     if (!label || isNaN(amount) || amount <= 0) {
-      alert('Kérlek adj meg érvényes megnevezést és pozitív összeget!');
+      this.showToast ? this.showToast('Kérlek adj meg érvényes megnevezést és pozitív összeget!', '⚠️') : alert('Kérlek adj meg érvényes megnevezést és pozitív összeget!');
       return;
     }
 
@@ -891,7 +869,7 @@ class BudgetApp {
     const percent = parseInt(document.getElementById('goalModalPercent').value, 10) || 0;
 
     if (!name || isNaN(target) || target <= 0) {
-      alert('Kérlek adj meg érvényes nevet és célösszeget!');
+      this.showToast ? this.showToast('Kérlek adj meg érvényes nevet és célösszeget!', '⚠️') : alert('Kérlek adj meg érvényes nevet és célösszeget!');
       return;
     }
 
@@ -945,7 +923,7 @@ class BudgetApp {
     if (isNaN(amount) || amount <= 0) return;
 
     if (delta < 0 && goal.current < amount) {
-      alert(`Nincs ennyi megtakarítás ebben a célban! Jelenleg: ${this.formatFt(goal.current)}`);
+      this.showToast ? this.showToast(`Nincs ennyi megtakarítás ebben a célban! Jelenleg: ${this.formatFt(goal.current)}`, '⚠️') : alert(`Nincs ennyi megtakarítás ebben a célban! Jelenleg: ${this.formatFt(goal.current)}`);
       return;
     }
 
@@ -1002,12 +980,12 @@ class BudgetApp {
     const note = noteInput.value.trim() || 'Változó bevétel';
 
     if (isNaN(amount) || amount <= 0) {
-      alert('Kérlek adj meg pozitív összeget!');
+      this.showToast ? this.showToast('Kérlek adj meg pozitív összeget!', '⚠️') : alert('Kérlek adj meg pozitív összeget!');
       return;
     }
 
     if (this.state.goals.length === 0) {
-      alert('Nincs még egyetlen megtakarítási célod sem! Hozz létre legalább egy célt a szétosztáshoz.');
+      this.showToast ? this.showToast('Nincs még egyetlen megtakarítási célod sem! Hozz létre legalább egy célt a szétosztáshoz.', '⚠️') : alert('Nincs még egyetlen megtakarítási célod sem! Hozz létre legalább egy célt a szétosztáshoz.');
       return;
     }
 
@@ -1128,7 +1106,7 @@ class BudgetApp {
     const breakdown = document.getElementById('editHistoryBreakdown').value.trim();
 
     if (!title || isNaN(amount) || !date) {
-      alert('Kérlek tölts ki minden kötelező mezőt!');
+      this.showToast ? this.showToast('Kérlek tölts ki minden kötelező mezőt!', '⚠️') : alert('Kérlek tölts ki minden kötelező mezőt!');
       return;
     }
 
@@ -1233,7 +1211,7 @@ class BudgetApp {
   openWeekDecisionModal(weekNum) {
     const surplus = this.getWeeklyRemaining(weekNum);
     if (surplus <= 0) {
-      alert(`A(z) ${weekNum}. héten nincs fennmaradó pozitív maradványkeret.`);
+      this.showToast ? this.showToast(`A(z) ${weekNum}. héten nincs fennmaradó pozitív maradványkeret.`, '⚠️') : alert(`A(z) ${weekNum}. héten nincs fennmaradó pozitív maradványkeret.`);
       return;
     }
 
@@ -1286,7 +1264,7 @@ class BudgetApp {
     }
 
     if (w >= 4) {
-      alert('A 4. hét az utolsó hét a 15-ei ciklusban. A megmaradt összeget érdemes megtakarítási célhoz átutalni!');
+      this.showToast ? this.showToast('A 4. hét az utolsó hét a 15-ei ciklusban. A megmaradt összeget érdemes megtakarítási célhoz átutalni!', '⚠️') : alert('A 4. hét az utolsó hét a 15-ei ciklusban. A megmaradt összeget érdemes megtakarítási célhoz átutalni!');
       return;
     }
 
@@ -1378,7 +1356,7 @@ class BudgetApp {
         this.selectWeek(w + 1);
         this.showToast(`Átváltva a(z) ${w + 1}. hétre. A túlköltekezés érvényesítve.`, 'ℹ️');
       } else {
-        alert('A 4. hét lezárult.');
+        this.showToast ? this.showToast('A 4. hét lezárult.', '⚠️') : alert('A 4. hét lezárult.');
       }
       return;
     }
@@ -1391,7 +1369,7 @@ class BudgetApp {
     const remaining = this.getWeeklyRemaining(w);
 
     if (remaining <= 0) {
-      alert('Az aktuális héten nincs pozitív maradványkeret, amit megtakarításba tehetnél.');
+      this.showToast ? this.showToast('Az aktuális héten nincs pozitív maradványkeret, amit megtakarításba tehetnél.', '⚠️') : alert('Az aktuális héten nincs pozitív maradványkeret, amit megtakarításba tehetnél.');
       return;
     }
 
@@ -1488,7 +1466,7 @@ class BudgetApp {
     const remVal = remInput && remInput.value !== '' ? parseInt(remInput.value, 10) : NaN;
 
     if (isNaN(baseVal) || baseVal < 0) {
-      alert('Kérlek adj meg érvényes heti induló keretet!');
+      this.showToast ? this.showToast('Kérlek adj meg érvényes heti induló keretet!', '⚠️') : alert('Kérlek adj meg érvényes heti induló keretet!');
       return;
     }
 
@@ -1569,7 +1547,7 @@ class BudgetApp {
     const startAmount = parseInt(input?.value, 10);
 
     if (isNaN(startAmount) || startAmount < 0) {
-      alert('Kérlek adj meg érvényes kezdő összeget!');
+      this.showToast ? this.showToast('Kérlek adj meg érvényes kezdő összeget!', '⚠️') : alert('Kérlek adj meg érvényes kezdő összeget!');
       return;
     }
 
@@ -1649,7 +1627,7 @@ class BudgetApp {
     const category = categoryRadio ? categoryRadio.value : 'hasznos';
 
     if (isNaN(amount) || amount <= 0 || !note) {
-      alert('Kérlek adj meg érvényes összeget és megjegyzést!');
+      this.showToast ? this.showToast('Kérlek adj meg érvényes összeget és megjegyzést!', '⚠️') : alert('Kérlek adj meg érvényes összeget és megjegyzést!');
       return;
     }
 
@@ -1862,7 +1840,7 @@ class BudgetApp {
     const category = catRadio ? catRadio.value : 'hasznos';
 
     if (isNaN(amount) || amount <= 0) {
-      alert('Kérlek adj meg érvényes összeget a mentéshez!');
+      this.showToast ? this.showToast('Kérlek adj meg érvényes összeget a mentéshez!', '⚠️') : alert('Kérlek adj meg érvényes összeget a mentéshez!');
       return;
     }
 
@@ -2228,10 +2206,10 @@ class BudgetApp {
           this.closeBackupModal();
           this.showToast('Adatok sikeresen visszaállítva!', '✅');
         } else {
-          alert('Érvénytelen mentési fájl formátum!');
+          this.showToast ? this.showToast('Érvénytelen mentési fájl formátum!', '⚠️') : alert('Érvénytelen mentési fájl formátum!');
         }
       } catch (err) {
-        alert('Hiba történt a fájl beolvasásakor: ' + err.message);
+        this.showToast ? this.showToast('Hiba történt a fájl beolvasásakor: ' + err.message, '⚠️') : alert('Hiba történt a fájl beolvasásakor: ' + err.message);
       }
     };
     reader.readAsText(file);
