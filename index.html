@@ -1684,94 +1684,92 @@ class BudgetApp {
       startWeek: 1
     };
 
-    this.state = this.loadState();
+    this.loadData = this.loadData.bind(this);
+    this.loadState = this.loadData;
+    this.saveData = this.saveData.bind(this);
+    this.saveState = this.saveData;
+
+    this.state = this.loadData();
+    window.appState = this.state;
     this.currentTab = 'weekly';
     this.init();
   }
 
-  loadState() {
+  loadData() {
+    let parsed = null;
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        const parsed = JSON.parse(stored);
-
-        // Sanitize any previous personal mock data from early prototypes
-        let goals = Array.isArray(parsed.goals) ? parsed.goals : [];
-        if (goals.some(g => g.name === 'Jogsi' || g.name === 'Síelés' || g.name === 'PS5 / GTA 6')) {
-          goals = [];
-        }
-
-        let fixedExpenses = Array.isArray(parsed.fixedExpenses) ? parsed.fixedExpenses : [];
-        if (fixedExpenses.some(f => f.name === 'Pszichológus' || f.name === 'Kondi' || f.name === 'Tánc' || f.name === 'BKK')) {
-          fixedExpenses = [];
-        }
-
-        let history = Array.isArray(parsed.history) ? parsed.history : [];
-        if (history.some(h => (h.breakdown || '').includes('Jogsi') || (h.title || '').includes('Jogsi'))) {
-          history = [];
-        }
-
-        // Quick buttons
-        let quickButtons = Array.isArray(parsed.quickButtons) && parsed.quickButtons.length > 0
-          ? parsed.quickButtons.map(btn => ({
-              ...btn,
-              category: btn.category || (btn.type === 'expense' ? 'szórakozás' : undefined)
-            }))
-          : JSON.parse(JSON.stringify(DEFAULT_STATE.quickButtons));
-
-        if (quickButtons.some(b => (b.label || '').includes('Meki') || (b.label || '').includes('Autómosás') || (b.label || '').includes('Kozmetika'))) {
-          quickButtons = JSON.parse(JSON.stringify(DEFAULT_STATE.quickButtons));
-        }
-
-        // Migrate weeks and ensure customBaseBudget, manualRemaining, and hasManualRollover are present
-        const weeks = { ...DEFAULT_STATE.weeks };
-        const parsedWeeks = parsed.weeks || {};
-
-        for (let w = 1; w <= 4; w++) {
-          const wData = parsedWeeks[w] || { rollover: 0, expenses: [] };
-          weeks[w] = {
-            rollover: typeof wData.rollover === 'number' ? wData.rollover : (parseInt(wData.rollover, 10) || 0),
-            hasManualRollover: Boolean(wData.hasManualRollover),
-            customBaseBudget: typeof wData.customBaseBudget === 'number' ? wData.customBaseBudget : null,
-            manualRemaining: typeof wData.manualRemaining === 'number' ? wData.manualRemaining : null,
-            surplusStatus: wData.surplusStatus || 'none', // 'none' | 'pending' | 'resolved' | 'archived'
-            transferredOut: typeof wData.transferredOut === 'number' ? wData.transferredOut : 0,
-            transferredToNextWeek: typeof wData.transferredToNextWeek === 'number' ? wData.transferredToNextWeek : 0,
-            expenses: Array.isArray(wData.expenses)
-              ? wData.expenses.map((exp, eIdx) => ({
-                  id: exp.id || `exp-${w}-${Date.now()}-${eIdx}`,
-                  amount: typeof exp.amount === 'number' ? exp.amount : (parseInt(exp.amount, 10) || 0),
-                  note: exp.note || 'Kiadás',
-                  category: exp.category || this.inferCategory(exp.note),
-                  date: exp.date || new Date().toLocaleDateString('hu-HU'),
-                }))
-              : []
-          };
-        }
-
-        const profileSetupDone = Boolean(parsed.profileSetupDone) || (goals.length > 0 && parsed.guaranteedIncome > 0);
-        const cycleStartDay = Math.min(31, Math.max(1, parseInt(parsed.cycleStartDay, 10) || 1));
-
-        return {
-          ...DEFAULT_STATE,
-          ...parsed,
-          profileSetupDone,
-          cycleStartDay,
-          guaranteedIncome: typeof parsed.guaranteedIncome === 'number' ? parsed.guaranteedIncome : 0,
-          monthlyWeeklyBudget: typeof parsed.monthlyWeeklyBudget === 'number' ? parsed.monthlyWeeklyBudget : 0,
-          fixedExpenses,
-          goals,
-          weekMode: parsed.weekMode || 'auto',
-          manualWeek: parsed.manualWeek || null,
-          quickButtons,
-          history,
-          weeks
-        };
+        parsed = JSON.parse(stored);
       }
     } catch (e) {
       console.error('Failed to load local storage state:', e);
     }
-    return JSON.parse(JSON.stringify(DEFAULT_STATE));
+
+    const state = {
+      ...DEFAULT_STATE,
+      ...(parsed || {}),
+    };
+
+    // Migrate weeks structure safely
+    state.weeks = { ...DEFAULT_STATE.weeks };
+    const parsedWeeks = (parsed && parsed.weeks) || {};
+    for (let w = 1; w <= 4; w++) {
+      const wData = parsedWeeks[w] || { rollover: 0, expenses: [] };
+      state.weeks[w] = {
+        rollover: typeof wData.rollover === 'number' ? wData.rollover : (parseInt(wData.rollover, 10) || 0),
+        hasManualRollover: Boolean(wData.hasManualRollover),
+        customBaseBudget: typeof wData.customBaseBudget === 'number' ? wData.customBaseBudget : null,
+        manualRemaining: typeof wData.manualRemaining === 'number' ? wData.manualRemaining : null,
+        surplusStatus: wData.surplusStatus || 'none',
+        transferredOut: typeof wData.transferredOut === 'number' ? wData.transferredOut : 0,
+        transferredToNextWeek: typeof wData.transferredToNextWeek === 'number' ? wData.transferredToNextWeek : 0,
+        expenses: Array.isArray(wData.expenses)
+          ? wData.expenses.map((exp, eIdx) => ({
+              id: exp.id || `exp-${w}-${Date.now()}-${eIdx}`,
+              amount: typeof exp.amount === 'number' ? exp.amount : (parseInt(exp.amount, 10) || 0),
+              note: exp.note || 'Kiadás',
+              category: exp.category || this.inferCategory(exp.note),
+              date: exp.date || new Date().toLocaleDateString('hu-HU'),
+            }))
+          : []
+      };
+    }
+
+    // 1. Összetett adatok visszatöltése és objektummá alakítása (fixedExpenses & goals)
+    const savedExpenses = localStorage.getItem('fixedExpenses');
+    if (savedExpenses) {
+      try {
+        state.fixedExpenses = JSON.parse(savedExpenses);
+      } catch (e) {
+        console.error('Hiba a fixedExpenses betöltésekor:', e);
+      }
+    } else if (parsed && Array.isArray(parsed.fixedExpenses)) {
+      state.fixedExpenses = parsed.fixedExpenses;
+    }
+
+    const savedGoals = localStorage.getItem('goals');
+    if (savedGoals) {
+      try {
+        state.goals = JSON.parse(savedGoals);
+      } catch (e) {
+        console.error('Hiba a goals betöltésekor:', e);
+      }
+    } else if (parsed && Array.isArray(parsed.goals)) {
+      state.goals = parsed.goals;
+    }
+
+    // 2. Onboarding állapot ellenőrzése
+    const isOnboardingComplete = localStorage.getItem('onboardingComplete') === 'true';
+    if (isOnboardingComplete) {
+      state.profileSetupDone = true;
+    } else if (parsed && parsed.profileSetupDone) {
+      state.profileSetupDone = true;
+      localStorage.setItem('onboardingComplete', 'true');
+    }
+
+    window.appState = state;
+    return state;
   }
 
   // Automatic heuristic category inference for older unclassified expenses
@@ -1784,9 +1782,15 @@ class BudgetApp {
     return 'hasznos';
   }
 
-  saveState() {
+  saveData() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+      if (this.state) {
+        // Mindig szinkronban mentjük a dedikált kulcsokat
+        localStorage.setItem('fixedExpenses', JSON.stringify(this.state.fixedExpenses));
+        localStorage.setItem('goals', JSON.stringify(this.state.goals));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+        window.appState = this.state;
+      }
     } catch (e) {
       console.error('Failed to save to local storage:', e);
     }
@@ -2049,6 +2053,8 @@ class BudgetApp {
   }
 
   init() {
+    window.appState = this.state;
+
     // Event listeners
     document.getElementById('openSettingsBtn')?.addEventListener('click', () => this.openSettingsModal());
     document.getElementById('exportImportBtn')?.addEventListener('click', () => this.openBackupModal());
@@ -2060,8 +2066,10 @@ class BudgetApp {
     this.render();
     this.updateDistributePreview();
 
-    // Trigger Onboarding Wizard if no profile is saved yet
-    if (!this.state.profileSetupDone) {
+    // 3. AZ ELSŐ INDÍTÁS VARÁZSLÓ (ONBOARDING) NE INDULJON EL ÚJRA:
+    // Ha az onboardingComplete === 'true', AKKOR NE jelenítse meg újra a kezdő beállító modalt!
+    const isOnboardingComplete = localStorage.getItem('onboardingComplete') === 'true';
+    if (!isOnboardingComplete && !this.state.profileSetupDone) {
       setTimeout(() => {
         this.openOnboardingWizard();
       }, 150);
@@ -4773,6 +4781,12 @@ class BudgetApp {
       this.viewWeek = 1;
     }
 
+    // 1 & 3. Kötelező mentés a kért kulcsokkal:
+    localStorage.setItem('onboardingComplete', 'true');
+    localStorage.setItem('fixedExpenses', JSON.stringify(this.state.fixedExpenses));
+    localStorage.setItem('goals', JSON.stringify(this.state.goals));
+    window.appState = this.state;
+
     this.closeOnboardingWizard();
     this.updateRolloversChain();
     this.saveState();
@@ -5106,9 +5120,13 @@ class BudgetApp {
       () => {
         try {
           localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem('onboardingComplete');
+          localStorage.removeItem('fixedExpenses');
+          localStorage.removeItem('goals');
         } catch (e) {}
 
         this.state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+        window.appState = this.state;
         this.closeSettingsModal();
         this.openOnboardingWizard();
         this.render();
@@ -5118,8 +5136,17 @@ class BudgetApp {
   }
 }
 
-// Global instance exposed for inline onclick handlers
+// Global instance exposed for inline onclick handlers and console access
 window.app = new BudgetApp();
+window.appState = window.app.state;
+
+// Segédfüggvény az adatok manuális visszatöltéséhez szükség esetén
+window.initApp = function() {
+  if (window.app) {
+    window.app.loadData();
+    window.app.render();
+  }
+};
 
     </script>
   </body>
